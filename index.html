@@ -22,8 +22,19 @@
          padding:12px 22px; border-radius:12px; font-weight:600; margin:18px 0 4px; }
   .cta small { display:block; font-weight:400; font-size:11px; opacity:0.8; }
   .soon { color:var(--muted); font-size:13px; margin:6px 0 0; }
-  .shots { display:flex; gap:14px; overflow-x:auto; padding:26px 0 10px; -webkit-overflow-scrolling:touch; }
-  .shots img { width:200px; border-radius:18px; border:1px solid var(--edge); flex-shrink:0; }
+  .shots { display:flex; gap:14px; overflow-x:auto; padding:26px 0 10px; -webkit-overflow-scrolling:touch;
+           scroll-snap-type:x mandatory; scrollbar-width:none; }
+  .shots::-webkit-scrollbar { display:none; }
+  .shots img { width:200px; border-radius:18px; border:1px solid var(--edge); flex-shrink:0;
+               scroll-snap-align:start; cursor:zoom-in; }
+  .shot-nav { display:flex; gap:10px; justify-content:center; margin:2px 0 6px; }
+  .shot-nav button { background:var(--panel); border:1px solid var(--edge); color:var(--ink);
+                     border-radius:999px; width:44px; height:36px; font-size:18px; cursor:pointer; }
+  .shot-nav button:hover { border-color:var(--accent); color:var(--accent); }
+  .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.82);
+              z-index:50; align-items:center; justify-content:center; cursor:zoom-out; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-height:92vh; max-width:92vw; border-radius:22px; }
   .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin:24px 0; }
   .feature { background:var(--panel); border:1px solid var(--edge); border-radius:14px; padding:16px 18px; }
   .feature h3 { margin:0 0 6px; font-size:15px; color:var(--accent); }
@@ -50,12 +61,20 @@
   <a class="cta" href="https://apps.apple.com/app/id6793305441">Download on the App&nbsp;Store<small>iPhone · iOS 17+ · Free</small></a>
   <p class="soon">In App Review — launching soon. This link goes live the moment it's approved.</p>
 
-  <div class="shots">
+  <div class="shots" id="shots">
     <img src="img/01-dashboard.png" alt="Dashboard with procedure counts and progress bars">
     <img src="img/02-log-grid.png" alt="Two-tap procedure logging grid">
     <img src="img/03-entry-sheet.png" alt="Entry sheet with ultrasound guidance toggle">
     <img src="img/04-signoff.png" alt="Sign-off tab with attestation PDF and form filling">
     <img src="img/05-targets.png" alt="Credentialing targets">
+  </div>
+  <div class="shot-nav">
+    <button type="button" aria-label="Previous screenshots" onclick="scrollShots(-1)">‹</button>
+    <button type="button" aria-label="Next screenshots" onclick="scrollShots(1)">›</button>
+  </div>
+
+  <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+    <img id="lightbox-img" src="" alt="Screenshot enlarged">
   </div>
 
   <div class="features">
@@ -99,5 +118,21 @@
 
   <p class="muted"><a href="privacy.html">Privacy Policy</a> · © 2026 ProcVault · Not a medical device; a personal record-keeping tool.</p>
 </main>
+<script>
+  function scrollShots(dir) {
+    const rail = document.getElementById("shots");
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    rail.scrollBy({ left: dir * 214 * 2, behavior: smooth ? "smooth" : "auto" });
+  }
+  document.querySelectorAll("#shots img").forEach(img => {
+    img.addEventListener("click", () => {
+      document.getElementById("lightbox-img").src = img.src;
+      document.getElementById("lightbox").classList.add("open");
+    });
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") document.getElementById("lightbox").classList.remove("open");
+  });
+</script>
 </body>
 </html>
