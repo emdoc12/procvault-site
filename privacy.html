@@ -12,11 +12,14 @@
   body { background:var(--bg); color:var(--ink); margin:0; padding:48px 24px 80px;
          font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.6; }
   main { max-width:640px; margin:0 auto; }
-  /* Big monitors: scale the whole column up rather than stretching it, so a
-     line stays a comfortable reading length. The lightbox is excluded — it
-     sizes itself to the viewport. */
-  @media (min-width:1440px) { main { max-width:800px; } main > :not(.lightbox) { zoom:1.25; } }
-  @media (min-width:1800px) { main { max-width:896px; } main > :not(.lightbox) { zoom:1.4; } }
+  /* The column fills the screen between fixed side margins (24px on a
+     phone, up to 120px on a big monitor). On large screens everything
+     scales up too, so the text isn't tiny in a wide column. The lightbox
+     is excluded from the scaling — it sizes itself to the viewport. */
+  body { padding-left:clamp(24px,6vw,120px); padding-right:clamp(24px,6vw,120px); }
+  main { max-width:none; }
+  @media (min-width:1440px) { main > :not(.lightbox) { zoom:1.25; } }
+  @media (min-width:1800px) { main > :not(.lightbox) { zoom:1.4; } }
   h1 { font-size:26px; letter-spacing:-0.02em; }
   h2 { font-size:17px; margin-top:26px; }
   .tag { color:var(--muted); }

@@ -20,11 +20,14 @@
   body { background:var(--bg); color:var(--ink); margin:0; padding:0 24px 80px;
          font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.55; }
   main { max-width:760px; margin:0 auto; }
-  /* Big monitors: scale the whole column up rather than stretching it, so a
-     line stays a comfortable reading length. The lightbox is excluded — it
-     sizes itself to the viewport. */
-  @media (min-width:1440px) { main { max-width:950px; } main > :not(.lightbox) { zoom:1.25; } }
-  @media (min-width:1800px) { main { max-width:1064px; } main > :not(.lightbox) { zoom:1.4; } }
+  /* The column fills the screen between fixed side margins (24px on a
+     phone, up to 120px on a big monitor). On large screens everything
+     scales up too, so the text isn't tiny in a wide column. The lightbox
+     is excluded from the scaling — it sizes itself to the viewport. */
+  body { padding-left:clamp(24px,6vw,120px); padding-right:clamp(24px,6vw,120px); }
+  main { max-width:none; }
+  @media (min-width:1440px) { main > :not(.lightbox) { zoom:1.25; } }
+  @media (min-width:1800px) { main > :not(.lightbox) { zoom:1.4; } }
   .hero { display:flex; align-items:center; gap:22px; padding:56px 0 8px; flex-wrap:wrap; }
   .hero img { width:104px; height:104px; border-radius:24px; box-shadow:0 8px 24px rgba(0,0,0,0.25); }
   h1 { font-size:34px; letter-spacing:-0.02em; margin:0; }
@@ -39,6 +42,7 @@
   .shots img { width:200px; border-radius:18px; border:1px solid var(--edge); flex-shrink:0;
                scroll-snap-align:start; cursor:zoom-in; }
   .shot-nav { display:flex; gap:10px; justify-content:center; margin:2px 0 6px; }
+  .shot-nav[hidden] { display:none; }
   .shot-nav button { background:var(--panel); border:1px solid var(--edge); color:var(--ink);
                      border-radius:999px; width:44px; height:36px; font-size:18px; cursor:pointer; }
   .shot-nav button:hover { border-color:var(--accent); color:var(--accent); }
@@ -47,6 +51,8 @@
   .lightbox.open { display:flex; }
   .lightbox img { max-height:92vh; max-width:92vw; border-radius:22px; }
   .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin:24px 0; }
+  /* Nine cards: 3×3 on wide screens rather than 4+4+1. */
+  @media (min-width:1100px) { .features { grid-template-columns:repeat(3,1fr); } }
   .feature { background:var(--panel); border:1px solid var(--edge); border-radius:14px; padding:16px 18px; }
   .feature h3 { margin:0 0 6px; font-size:15px; color:var(--accent); }
   .feature p { margin:0; font-size:14px; color:var(--muted); }
@@ -171,6 +177,13 @@
     const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     rail.scrollBy({ left: dir * 214 * 2, behavior: smooth ? "smooth" : "auto" });
   }
+  // Hide the arrows when every screenshot already fits on screen.
+  function updateShotNav() {
+    const rail = document.getElementById("shots");
+    document.querySelector(".shot-nav").hidden = rail.scrollWidth <= rail.clientWidth + 1;
+  }
+  window.addEventListener("resize", updateShotNav);
+  window.addEventListener("load", updateShotNav);
   document.querySelectorAll("#shots img").forEach(img => {
     img.addEventListener("click", () => {
       document.getElementById("lightbox-img").src = img.src;
